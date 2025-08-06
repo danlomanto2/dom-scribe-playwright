@@ -1,73 +1,209 @@
-# Welcome to your Lovable project
+# Playwright POM Generator Chrome Extension
 
-## Project info
+A Chrome extension that scans any webpage's DOM (including iframes & shadow DOMs) and uses ChatGPT to auto-generate Playwright Page Object Model code in TypeScript.
 
-**URL**: https://lovable.dev/projects/dc1005b4-da25-4ea0-bf06-8da4415c9b08
+## Features
 
-## How can I edit this code?
+- **Complete DOM Scanning**: Analyzes all DOM elements including iframes and shadow DOMs
+- **AI-Powered Generation**: Uses OpenAI GPT-4 to generate clean, DRY Page Object Models
+- **Smart Locators**: Prioritizes data-testid, aria-labels, and other reliable selectors
+- **Custom Prompts**: Filter generation with prompts like "only the login modal"
+- **TypeScript Ready**: Generates production-ready code with proper types
+- **Copy & Download**: Easy code export for immediate use
 
-There are several ways of editing your application.
+## Installation Instructions
 
-**Use Lovable**
+### Step 1: Download the Repository
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/dc1005b4-da25-4ea0-bf06-8da4415c9b08) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm install
 ```
 
-**Edit a file directly in GitHub**
+### Step 2: Build the Extension
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Currently, the extension files are ready in the `/public` and `/src/extension` folders. To prepare for Chrome installation:
 
-**Use GitHub Codespaces**
+1. **Copy extension files to a build folder**:
+   ```bash
+   mkdir chrome-extension
+   cp public/manifest.json chrome-extension/
+   cp public/popup.html chrome-extension/
+   cp public/popup.css chrome-extension/
+   cp public/icon*.png chrome-extension/
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. **Build the React components** (this will be automated in future versions):
+   - The popup interface needs to be compiled from the React components
+   - Content scripts are ready to use as-is
 
-## What technologies are used for this project?
+### Step 3: Install in Chrome
 
-This project is built with:
+1. **Open Chrome Extensions page**:
+   - Navigate to `chrome://extensions/`
+   - Or go to Chrome menu → More tools → Extensions
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+2. **Enable Developer Mode**:
+   - Toggle "Developer mode" in the top right corner
 
-## How can I deploy this project?
+3. **Load the Extension**:
+   - Click "Load unpacked"
+   - Select the `chrome-extension` folder you created in Step 2
+   - The extension should now appear in your extensions list
 
-Simply open [Lovable](https://lovable.dev/projects/dc1005b4-da25-4ea0-bf06-8da4415c9b08) and click on Share -> Publish.
+4. **Pin the Extension** (optional):
+   - Click the puzzle piece icon in Chrome toolbar
+   - Find "Playwright POM Generator" and click the pin icon
 
-## Can I connect a custom domain to my Lovable project?
+### Step 4: Configure Your OpenAI API Key
 
-Yes, you can!
+1. **Get an OpenAI API Key**:
+   - Visit [OpenAI API](https://platform.openai.com/api-keys)
+   - Create a new API key
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+2. **Set up the Extension**:
+   - Click the extension icon in your Chrome toolbar
+   - Enter your OpenAI API key in the settings field
+   - Click "Save" to store it securely
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## How to Use
+
+### Basic Usage
+
+1. **Navigate** to any webpage you want to analyze
+2. **Click** the extension icon to open the popup
+3. **Scan DOM**: Click "Scan DOM" to analyze the current page
+4. **Generate POM**: Click "Generate POM" to create Page Object Model code
+5. **Copy/Download**: Use the generated TypeScript code in your Playwright project
+
+### Advanced Usage with Prompts
+
+Add specific prompts to filter what gets generated:
+
+- `"only the login form"` - Generates POM just for login elements
+- `"navigation menu only"` - Focuses on navigation components  
+- `"modal dialogs"` - Extracts modal-specific elements
+- `"search functionality"` - Targets search-related elements
+
+### Example Generated Code
+
+```typescript
+export class LoginPage {
+  constructor(private page: Page) {}
+
+  // Locators
+  get emailInput() { 
+    return this.page.locator('[data-testid="email-input"]'); 
+  }
+  
+  get passwordInput() { 
+    return this.page.locator('[data-testid="password-input"]'); 
+  }
+  
+  get loginButton() { 
+    return this.page.locator('[data-testid="login-button"]'); 
+  }
+
+  // Actions
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+  }
+
+  // Assertions  
+  async expectToBeVisible() {
+    await expect(this.loginButton).toBeVisible();
+  }
+}
+```
+
+## Development Setup
+
+### Project Structure
+
+```
+├── public/
+│   ├── manifest.json          # Extension configuration
+│   ├── popup.html            # Extension popup HTML
+│   ├── popup.css             # Extension styles
+│   └── icon*.png             # Extension icons
+├── src/
+│   ├── extension/
+│   │   ├── popup.tsx         # React popup component
+│   │   ├── content-script.ts # DOM scanning logic
+│   │   └── injected-script.ts# Shadow DOM access
+│   └── pages/
+│       └── Index.tsx         # Documentation page
+```
+
+### Building for Development
+
+1. **Make changes** to source files
+2. **Rebuild extension** (process to be automated)
+3. **Reload in Chrome**:
+   - Go to `chrome://extensions/`
+   - Click the reload button on your extension
+
+### Customization
+
+**Modify DOM Scanning**: Edit `src/extension/content-script.ts` to change:
+- Element filtering criteria
+- Locator generation strategies
+- Data extraction methods
+
+**Customize AI Prompts**: Edit `src/extension/popup.tsx` to modify:
+- System prompts for code generation
+- Page Object Model templates
+- Locator prioritization
+
+## Troubleshooting
+
+### Extension Won't Load
+- ✅ Check that manifest.json is valid JSON
+- ✅ Ensure all referenced files exist
+- ✅ Look for errors in Chrome Developer Console
+
+### DOM Scanning Issues
+- ⚠️ Some websites block content scripts
+- ⚠️ Cross-origin iframes cannot be accessed
+- ⚠️ Shadow DOM requires script injection
+
+### API Errors
+- 🔑 Verify OpenAI API key is correct and active
+- 💳 Check API usage limits and billing
+- 🌐 Ensure internet connectivity
+
+### Generated Code Issues
+- 📝 Review generated locators for accuracy
+- 🧪 Test selectors in browser DevTools
+- ✏️ Modify prompts for better results
+
+## Future Enhancements
+
+- [ ] Automated build process for extension
+- [ ] Support for additional AI providers
+- [ ] Page Object Model templates
+- [ ] Visual element highlighting
+- [ ] Export to different test frameworks
+- [ ] Chrome Web Store publication
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test the extension thoroughly
+5. Submit a pull request
+
+## License
+
+This project is built with Lovable and uses modern web technologies including React, TypeScript, and Tailwind CSS.
+
+## Support
+
+For issues or feature requests:
+- Check the troubleshooting section above
+- Review Chrome extension development docs
+- Open an issue in the repository
