@@ -13,50 +13,41 @@ A Chrome extension that scans any webpage's DOM (including iframes & shadow DOMs
 
 ## Installation Instructions
 
-### Step 1: Download the Repository
+### Option 1: Download Pre-built Extension (Recommended)
 
-```bash
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
-npm install
-```
+1. **Download from Releases**:
+   - Go to the [Releases page](../../releases) of this repository
+   - Download the latest `playwright-pom-generator-extension.zip`
+   - Extract the ZIP file to a folder on your computer
 
-### Step 2: Build the Extension
+2. **Install in Chrome**:
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (toggle in top right)
+   - Click "Load unpacked"
+   - Select the extracted extension folder
+   - The extension will appear in your Chrome toolbar
 
-Currently, the extension files are ready in the `/public` and `/src/extension` folders. To prepare for Chrome installation:
+### Option 2: Build from Source
 
-1. **Copy extension files to a build folder**:
+1. **Download the Repository**:
    ```bash
-   mkdir chrome-extension
-   cp public/manifest.json chrome-extension/
-   cp public/popup.html chrome-extension/
-   cp public/popup.css chrome-extension/
-   cp public/icon*.png chrome-extension/
+   git clone <YOUR_GIT_URL>
+   cd <YOUR_PROJECT_NAME>
+   npm install
    ```
 
-2. **Build the React components** (this will be automated in future versions):
-   - The popup interface needs to be compiled from the React components
-   - Content scripts are ready to use as-is
+2. **The extension builds automatically via GitHub Actions**:
+   - Every commit triggers an automated build
+   - Built extensions are available in the Actions artifacts
+   - Releases are created automatically on main branch pushes
 
-### Step 3: Install in Chrome
+3. **Manual Build** (if needed):
+   ```bash
+   npm run build
+   # Extension files will be in the dist folder
+   ```
 
-1. **Open Chrome Extensions page**:
-   - Navigate to `chrome://extensions/`
-   - Or go to Chrome menu → More tools → Extensions
-
-2. **Enable Developer Mode**:
-   - Toggle "Developer mode" in the top right corner
-
-3. **Load the Extension**:
-   - Click "Load unpacked"
-   - Select the `chrome-extension` folder you created in Step 2
-   - The extension should now appear in your extensions list
-
-4. **Pin the Extension** (optional):
-   - Click the puzzle piece icon in Chrome toolbar
-   - Find "Playwright POM Generator" and click the pin icon
-
-### Step 4: Configure Your OpenAI API Key
+### Step 3: Configure Your OpenAI API Key
 
 1. **Get an OpenAI API Key**:
    - Visit [OpenAI API](https://platform.openai.com/api-keys)
@@ -138,25 +129,36 @@ export class LoginPage {
 │       └── Index.tsx         # Documentation page
 ```
 
-### Building for Development
+## Automated Build Process
 
-1. **Make changes** to source files
-2. **Rebuild extension** (process to be automated)
-3. **Reload in Chrome**:
-   - Go to `chrome://extensions/`
-   - Click the reload button on your extension
+This repository includes GitHub Actions that automatically:
 
-### Customization
+### 🔄 **Continuous Integration**
+- ✅ Builds the extension on every push and pull request
+- ✅ Compiles React components into extension-compatible JavaScript
+- ✅ Creates a ready-to-install extension package
+- ✅ Runs on Ubuntu with Node.js 18
 
-**Modify DOM Scanning**: Edit `src/extension/content-script.ts` to change:
-- Element filtering criteria
-- Locator generation strategies
-- Data extraction methods
+### 📦 **Automated Releases**
+- 🚀 Creates releases automatically on main branch pushes
+- 📁 Includes `playwright-pom-generator-extension.zip` in each release
+- 📝 Generates release notes with installation instructions
+- 🔖 Uses semantic versioning (v1.0.X format)
 
-**Customize AI Prompts**: Edit `src/extension/popup.tsx` to modify:
-- System prompts for code generation
-- Page Object Model templates
-- Locator prioritization
+### 💾 **Build Artifacts**
+- Extension files available in GitHub Actions artifacts
+- Pre-built ZIP files ready for Chrome installation
+- No manual build process required for end users
+
+### 🛠 **Build Process Details**
+The GitHub Action automatically:
+1. Installs dependencies and builds React components
+2. Creates extension directory structure
+3. Bundles popup interface with simplified React components
+4. Converts TypeScript to JavaScript for Chrome compatibility
+5. Packages everything into a distributable ZIP file
+
+To trigger a new build, simply push to the main branch or create a pull request.
 
 ## Troubleshooting
 
