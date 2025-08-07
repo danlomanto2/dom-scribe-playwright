@@ -27,14 +27,18 @@ function copyStaticFiles(extensionDir) {
     }
   });
 
-  // Copy icon files
-  const iconFiles = fs.readdirSync('public').filter(file => file.startsWith('icon') && file.endsWith('.png'));
-  iconFiles.forEach(file => {
-    const srcPath = path.join('public', file);
-    const destPath = path.join(extensionDir, file);
-    fs.copyFileSync(srcPath, destPath);
-    console.log(`Copied ${file}`);
-  });
+  // Copy icon files  
+  try {
+    const iconFiles = fs.readdirSync('public').filter(file => file.startsWith('icon') && file.endsWith('.png'));
+    iconFiles.forEach(file => {
+      const srcPath = path.join('public', file);
+      const destPath = path.join(extensionDir, file);
+      fs.copyFileSync(srcPath, destPath);
+      console.log(`Copied ${file}`);
+    });
+  } catch (error) {
+    console.log('No icon files found or error copying icons');
+  }
 }
 
 // Create popup component bundle
@@ -256,15 +260,12 @@ function createPopupEntry(extensionDir) {
   console.log('Creating popup entry point...');
   
   const popupEntryContent = `// Chrome Extension Popup Entry Point
-import { createRoot } from 'react-dom/client';
-import { Popup } from './popup-component.js';
-
 // Initialize the popup when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('popup-root');
-  if (container) {
-    const root = createRoot(container);
-    root.render(React.createElement(Popup));
+  if (container && window.Popup) {
+    const root = ReactDOM.createRoot(container);
+    root.render(React.createElement(window.Popup));
   }
 });`;
 
@@ -376,20 +377,25 @@ function updatePopupHtml(extensionDir) {
 function buildExtension() {
   console.log('Building Chrome Extension...');
   
-  const extensionDir = createExtensionDirectory();
-  copyStaticFiles(extensionDir);
-  createPopupComponent(extensionDir);
-  createPopupEntry(extensionDir);
-  bundleExtensionScripts(extensionDir);
-  updatePopupHtml(extensionDir);
-  
-  console.log('\\n✅ Chrome extension built successfully!');
-  console.log(\`📁 Extension files are in: \${extensionDir}/\`);
-  console.log('🚀 Load the extension in Chrome by:');
-  console.log('   1. Go to chrome://extensions/');
-  console.log('   2. Enable "Developer mode"');
-  console.log('   3. Click "Load unpacked"');
-  console.log(\`   4. Select the \${extensionDir}/ folder\`);
+  try {
+    const extensionDir = createExtensionDirectory();
+    copyStaticFiles(extensionDir);
+    createPopupComponent(extensionDir);
+    createPopupEntry(extensionDir);
+    bundleExtensionScripts(extensionDir);
+    updatePopupHtml(extensionDir);
+    
+    console.log('\n✅ Chrome extension built successfully!');
+    console.log(`📁 Extension files are in: ${extensionDir}/`);
+    console.log('🚀 Load the extension in Chrome by:');
+    console.log('   1. Go to chrome://extensions/');
+    console.log('   2. Enable "Developer mode"');
+    console.log('   3. Click "Load unpacked"');
+    console.log(`   4. Select the ${extensionDir}/ folder`);
+  } catch (error) {
+    console.error('❌ Error building extension:', error.message);
+    process.exit(1);
+  }
 }
 
 // Run if called directly
